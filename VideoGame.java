@@ -74,6 +74,9 @@ public class VideoGame {
     }
     //Custom method to calculate inflation adjusted price using estimated 3% yearly inflation average
     public double calculateInflationPrice(){
+        if (gameReleasePrice < 0) {
+            return 0;
+        }
         int year = Year.now().getValue();
         double averageAnnualInflation = 0.03;
         double inflationPrice = (gameReleasePrice * (Math.pow((1+averageAnnualInflation),(year - gameReleaseYear))));

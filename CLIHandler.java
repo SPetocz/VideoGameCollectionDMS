@@ -9,6 +9,8 @@ public class CLIHandler {
     // Initialize Scanner for user input
     Scanner scanner = new Scanner(System.in);
 
+
+
     // Main menu method for user navigation
     public int menu() {
 
@@ -542,45 +544,9 @@ public class CLIHandler {
                         System.out.print("Filepath cannot be blank: ");
                         filepath = scanner.nextLine();
                     }
-
                     List<String> lines = new ArrayList<>();
-
-                    try{
-                        Scanner fileScanner = new Scanner(new File(filepath));
-                        while(fileScanner.hasNextLine()){
-                            lines.add(fileScanner.nextLine().trim());
-                        }
-                        fileScanner.close();
-
-                        int added = 0;
-
-                        for(String line : lines){
-                            String[] tokens = line.split("-");
-                            if(tokens.length != 7) continue;
-
-                            try{
-                                int id = Integer.parseInt(tokens[0]);
-                                String title = tokens[1];
-                                String genre = tokens[2];
-                                String platform = tokens[3];
-                                int year = Integer.parseInt(tokens[4]);
-                                double price = Double.parseDouble(tokens[5]);
-                                boolean multiplayer = Boolean.parseBoolean(tokens[6]);
-
-                                if(collection.addGame(new VideoGame(id,title,genre,platform,year,price,multiplayer))){
-                                    added++;
-                                }
-
-                            }catch(Exception e){
-                                continue;
-                            }
-                        }
-
-                        System.out.println("Successfully added " + added + " games.");
-
-                    } catch(FileNotFoundException e){
-                        System.out.println("File not found.");
-                    }
+                    int added = collection.fileLoader(filepath, lines, collection);
+                    System.out.println("Successfully added " + added + " games.");
 
                     System.out.println("Press Enter to continue...");
                     scanner.nextLine();
