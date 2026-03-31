@@ -1,9 +1,11 @@
+import javax.swing.*;
+import java.awt.*;
 
 public class Main {
     static void main(String [] args){
-        //initialize a CLIHandler object
-        CLIHandler cliHandler = new CLIHandler();
-        //call the menu
-        cliHandler.menu();
+        //create new gui object
+        GUIHandler gui = new GUIHandler();
+        //call gui launch to start
+        gui.launch();
     }
 }
