@@ -1,11 +1,8 @@
 import javax.swing.*;
-import java.awt.*;
 
 public class Main {
-    static void main(String [] args){
-        //create new gui object
-        GUIHandler gui = new GUIHandler();
-        //call gui launch to start
+    public static void main(String [] args){
+        Gui gui = new Gui();
         gui.launch();
     }
 }
