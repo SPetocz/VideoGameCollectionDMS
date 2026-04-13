@@ -1,22 +1,51 @@
 import javax.swing.table.DefaultTableModel;
-import java.nio.file.Path;
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * PURPOSE:
+ * Handles all database operations for the application.
+ * <p>
+ * FUNCTIONALITY:
+ * This class manages the connection to an SQLite database and performs
+ * CRUD operations (Create, Read, Update, Delete) for VideoGame records.
+ * It provides methods to connect/disconnect from the database, insert
+ * new entries, delete entries, retrieve all data, and check for duplicates.
+ * <p>
+ * ROLE IN SYSTEM:
+ * Acts as the data persistence layer of the application, allowing the GUI
+ * and other components to interact with the database.
+ * <p>
+ * RELATIONSHIPS:
+ * Works with the VideoGame class to store and retrieve game objects.
+ * Supplies data to the GUI via DefaultTableModel for display in tables.
+ */
 public class DBHandler {
 
-    //url string to store connection to db
     String url;
-    //connection object for db functions
     Connection conn;
 
-    //method that takes in a filepath to a .db and connects to the db
-    public  void connectDB(String dbFilePath){
+    /**
+     * Creates a new DBHandler instance.
+     *
+     * The database connection is not established until connectDB() is called.
+     */
+    public DBHandler() {
+        // no initialization required
+    }
+
+    /**
+     * Connects to the SQLite database using the provided file path.
+     * <p>
+     * This method handles SQLExceptions internally if a connection error occurs.
+     *
+     * @param dbFilePath The file path to the .db database file.
+     *
+     */
+    public void connectDB(String dbFilePath){
         url = "jdbc:sqlite:" + dbFilePath;
         try{
             conn = DriverManager.getConnection(url);
-            if(conn!=null){
+            if(conn != null){
                 System.out.println("Connected to DB.");
             }
         }catch(SQLException e){
@@ -24,7 +53,12 @@ public class DBHandler {
         }
     }
 
-    //method that disconnects from the db
+    /**
+     * Closes the connection to the database if it is currently open.
+     *<p>
+     * This method handles SQLExceptions internally if a connection error occurs.
+     * This method handles SQLExceptions internally if an error occurs while closing.
+     */
     public void disconnectDB(){
         try{
             if(conn != null){
@@ -36,19 +70,29 @@ public class DBHandler {
         }
     }
 
-    //method to select all from games table in db
+    /**
+     * Retrieves all video game records from the database and returns them
+     * in a non-editable table model.
+     *<p>
+     * This method handles SQLExceptions internally if a connection error occurs.
+     * @return A DefaultTableModel containing all game records.
+     *
+     */
     public DefaultTableModel selectAll(){
 
         String selectAll = "SELECT * FROM Games";
-        String [] columns = {"ID", "Title", "Genre", "Platform", "Release Year", "Release Price", "Multiplayer"};
+        String[] columns = {"ID", "Title", "Genre", "Platform", "Release Year", "Release Price", "Multiplayer"};
+
         DefaultTableModel model = new DefaultTableModel(columns, 0){
             @Override
             public boolean isCellEditable(int row, int column){
                 return false;
             }
         };
+
         try(Statement statement = conn.createStatement();
-        ResultSet rs = statement.executeQuery(selectAll)){
+            ResultSet rs = statement.executeQuery(selectAll)){
+
             while(rs.next()){
                 Object[] row = {
                         rs.getInt("gameID"),
@@ -61,15 +105,24 @@ public class DBHandler {
                 };
                 model.addRow(row);
             }
+
         }catch (SQLException e){
             e.printStackTrace();
         }
+
         return model;
     }
 
-    //method that deletes entry from games using gameID
+    /**
+     * Deletes a video game record from the database using its ID.
+     *<p>
+     * This method handles SQLExceptions internally if a connection error occurs.
+     * @param gameID The unique identifier of the game to delete.
+     *
+     */
     public void deleteEntry(int gameID) {
-        String delete = "DELETE FROM Games WHERE gameID = " + String.valueOf(gameID);
+        String delete = "DELETE FROM Games WHERE gameID = " + gameID;
+
         try {
             Statement statement = conn.createStatement();
             statement.executeUpdate(delete);
@@ -78,43 +131,51 @@ public class DBHandler {
         }
     }
 
-    //method that takes in a game object and inserts it into the games table in the db
+    /**
+     * Inserts a new VideoGame record into the database.
+     *<p>
+     * This method handles SQLExceptions internally if a connection error occurs.
+     * @param game The VideoGame object containing data to insert.
+     *
+     */
     public void insertEntry(VideoGame game) {
-        int id = game.getGameID();
-        String title = game.getGameTitle();
-        String genre = game.getGameGenre();
-        String platform = game.getGamePlatform();
-        int year = game.getGameReleaseYear();
-        double price = game.getGameReleasePrice();
-        boolean multiplayer = game.isMultiplayer();
+
         String insert = "INSERT INTO Games (gameID, gameTitle, gameGenre, gamePlatform, gameReleaseYear, gameReleasePrice, multiplayer) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
         try {
             PreparedStatement ps = conn.prepareStatement(insert);
-            ps.setInt(1, id);
-            ps.setString(2, title);
-            ps.setString(3, genre);
-            ps.setString(4, platform);
-            ps.setInt(5, year);
-            ps.setDouble(6, price);
-            ps.setBoolean(7, multiplayer);
+            ps.setInt(1, game.getGameID());
+            ps.setString(2, game.getGameTitle());
+            ps.setString(3, game.getGameGenre());
+            ps.setString(4, game.getGamePlatform());
+            ps.setInt(5, game.getGameReleaseYear());
+            ps.setDouble(6, game.getGameReleasePrice());
+            ps.setBoolean(7, game.isMultiplayer());
+
             ps.executeUpdate();
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    //method that takes in a gameID and queries the games table to see if it is already present
+    /**
+     * Checks whether a game with the given ID already exists in the database.
+     *<p>
+     * This method handles SQLExceptions internally if a connection error occurs.
+     * @param gameID The ID to check for duplicates.
+     * @return true if the game already exists, false otherwise.
+     *
+     */
     public boolean duplicateEntry(int gameID){
-        String checkID = "SELECT * FROM Games WHERE gameID = " + String.valueOf(gameID);
-        ResultSet rs = null;
+        String checkID = "SELECT * FROM Games WHERE gameID = " + gameID;
+
         try{
             Statement statement = conn.createStatement();
-            rs = statement.executeQuery(checkID);
-            if(rs.next()){
-                return true;
-            }else{
-                return false;
-            }
+            ResultSet rs = statement.executeQuery(checkID);
+
+            return rs.next();
+
         } catch (SQLException e) {
             e.printStackTrace();
         }

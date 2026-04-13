@@ -2,6 +2,22 @@ import java.util.*;
 import java.io.File;
 import java.io.FileNotFoundException;
 
+/**
+ * Class: CLIHandler
+ * <p>
+ * Purpose:
+ * Provides a command-line interface for interacting with the Video Game Collection system.
+ * <p>
+ * Primary Functionality:
+ * Handles user input, displays menus, and calls methods from GameCollection to manage
+ * VideoGame objects (add, delete, update, load, and calculate inflation).
+ * <p>
+ * Role in System:
+ * Acts as the user-facing controller for the non-GUI version of the application.
+ * <p>
+ * Dependencies:
+ * Relies on GameCollection and VideoGame classes for all data operations.
+ */
 public class CLIHandler {
 
     // Initialize new GameCollection object
@@ -9,9 +25,11 @@ public class CLIHandler {
     // Initialize Scanner for user input
     Scanner scanner = new Scanner(System.in);
 
-
-
-    // Main menu method for user navigation
+    /**
+     * Displays the main menu and processes user input continuously until exit is selected.
+     *
+     * @return returns 0 when the user chooses to quit the application.
+     */
     public int menu() {
 
         // Loop until the user chooses to quit
@@ -85,7 +103,10 @@ public class CLIHandler {
 
     }
 
-    // Method to add a new game
+    /**
+     * Prompts the user to enter details for a new VideoGame and adds it to the collection.
+     * Performs validation for ID uniqueness, numeric constraints, and required fields.
+     */
     private void addNewGame() {
 
         int id;
@@ -205,7 +226,9 @@ public class CLIHandler {
         scanner.nextLine();
     }
 
-    // Method to delete a game
+    /**
+     * Allows the user to delete a game from the collection by title or ID.
+     */
     private void deleteGame() {
 
         System.out.println("*****************************************");
@@ -263,7 +286,10 @@ public class CLIHandler {
         scanner.nextLine();
     }
 
-    // Method to update a game (full switch case menu for each field)
+    /**
+     * Provides a submenu for updating different attributes of a selected game.
+     * Supports updates by either title or ID.
+     */
     private void updateGame() {
 
         System.out.println("*****************************************");
@@ -277,7 +303,6 @@ public class CLIHandler {
         String input = scanner.nextLine();
         VideoGame gameToUpdate = null;
 
-        // Select game to update
         if(input.equals("1")){
             System.out.print("Enter the title of the game to update: ");
             String upTitle = scanner.nextLine();
@@ -313,6 +338,7 @@ public class CLIHandler {
 
         boolean updating = true;
         while(updating){
+
             System.out.println("*****************************************");
             System.out.println("Updating: " + gameToUpdate.getGameTitle());
             System.out.println("*****************************************");
@@ -327,6 +353,7 @@ public class CLIHandler {
             System.out.println("*****************************************");
 
             input = scanner.nextLine();
+
             switch(input){
                 case "1":
                     int newGameID = -1;
@@ -451,7 +478,9 @@ public class CLIHandler {
         scanner.nextLine();
     }
 
-    // Method to calculate inflation price
+    /**
+     * Calculates and displays the inflation-adjusted price of a selected game.
+     */
     private void calculateInflation() {
 
         System.out.println("*****************************************");
@@ -521,7 +550,11 @@ public class CLIHandler {
 
     }
 
-    // Method to load games from a file
+    /**
+     * Loads games from a file into the collection.
+     *
+     * @return number of games successfully loaded from the file
+     */
     public int loadGamesFromFile(){
 
         while(true){

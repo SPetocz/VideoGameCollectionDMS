@@ -6,9 +6,23 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.time.Year;
-import java.util.ArrayList;
-import java.util.List;
 
+/**
+ * PURPOSE:
+ * Provides the graphical user interface for the Video Game Collection Database Management System.
+ * <p>
+ * FUNCTIONALITY:
+ * This class builds and manages all GUI components including the main window and dialogs
+ * for adding, updating, deleting, and analyzing video game records. It also handles all
+ * user interactions such as button clicks, form inputs, and table updates.
+ * <p>
+ * ROLE IN SYSTEM:
+ * Acts as the presentation layer of the application, allowing users to interact with
+ * the database visually instead of through direct database queries.
+ * <p>
+ * RELATIONSHIPS:
+ * Uses DBHandler to perform all database operations and VideoGame objects to represent data.
+ */
 public class GUI {
 
     //setting up colors to use
@@ -36,18 +50,26 @@ public class GUI {
 
     //constraint object for GridBagLayout
     GridBagConstraints c = new GridBagConstraints();
+
     //JFrame to reference
     JFrame frame = new JFrame();
+
     //table model to use in methods
     DefaultTableModel model = new DefaultTableModel();
+
     //JTable to reference
     JTable table;
+
     //get current year for forms
     int currentYear = Year.now().getValue();
+
     //DBHandler object for database functions
     DBHandler db = new DBHandler();
 
-    //method to reset GridBagConstraint object for layout
+    /**
+     * Resets GridBagConstraints to default values.
+     * @param c the GridBagConstraints object being reset
+     */
     public void resetC(GridBagConstraints c){
         c.gridx = 0;
         c.gridy = 0;
@@ -62,14 +84,22 @@ public class GUI {
         c.ipadx = 0;
     }
 
-    //method to set gridx and gridy in one line
+    /**
+     * Sets grid position for GridBagLayout constraints.
+     * @param c GridBagConstraints object
+     * @param x column position
+     * @param y row position
+     * @return updated GridBagConstraints
+     */
     public GridBagConstraints grid(GridBagConstraints c, int x, int y){
         c.gridx = x;
         c.gridy = y;
         return c;
     }
 
-    //method to launch JFrame and set home screen
+    /**
+     * Launches the main application window and loads the home screen.
+     */
     public void launch() {
         frame.setTitle("Video Game Collection DMS");
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -81,7 +111,10 @@ public class GUI {
         frame.setVisible(true);
     }
 
-    //method to get our table of to display video games
+    /**
+     * Creates and configures the JTable used for displaying video game records.
+     * @return configured JTable
+     */
     public JTable getTable(){
         table = new JTable();
         table.setFont(tableFont);
@@ -93,14 +126,20 @@ public class GUI {
         return table;
     }
 
-    //method to load table to display updates
+    /**
+     * Reloads the table data from the database and refreshes the UI.
+     */
     public void loadTable(){
         table.setModel(db.selectAll());
         table.revalidate();
         table.repaint();
     }
 
-    //method to launch and handle homeScreen
+    /**
+     * Builds the home screen UI and returns the main container.
+     * @param frame main application JFrame
+     * @return main container panel
+     */
     public Container homeScreen(JFrame frame) {
         resetC(c);
         JPanel mainPanel = new JPanel();
@@ -226,7 +265,6 @@ public class GUI {
         secondPanel.add(spacer2, c);
         resetC(c);
 
-
         JScrollPane scrollPane = new JScrollPane();
         c.fill = GridBagConstraints.BOTH;
         thirdPanel.add(scrollPane, c);
@@ -263,6 +301,7 @@ public class GUI {
         grid(c, 2, 0);
         fourthPanel.add(quitButton, c);
         resetC(c);
+
         quitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -274,7 +313,9 @@ public class GUI {
         return mainPanel;
     }
 
-    //method to create and handle file chooser dialog box to import .txt files
+    /**
+     * Opens a dialog to select and connect to a database file.
+     */
     public void loadDialog(){
         JDialog loadDialog = new JDialog();
         loadDialog.setTitle("Database File Selection");
@@ -292,6 +333,7 @@ public class GUI {
         fileChooser.setBackground(dialogColor);
         fileChooser.setForeground(dialogColor);
         fileChooser.setOpaque(false);
+
         fileChooser.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -301,19 +343,21 @@ public class GUI {
                     db.connectDB(filePath);
                     table.setModel(db.selectAll());
                     loadDialog.dispose();
-
-                }else if(e.getActionCommand().equals(JFileChooser.CANCEL_SELECTION)){
+                } else if(e.getActionCommand().equals(JFileChooser.CANCEL_SELECTION)){
                     loadDialog.dispose();
-                }else{
+                } else {
                     System.out.println("Error getting file chooser selection.");
                 }
             }
         });
+
         loadDialog.setContentPane(dialogPanel);
         loadDialog.setVisible(true);
     }
 
-    //method to create and handle inflation calculation dialogbox
+    /**
+     * Opens a dialog to display inflation-adjusted price of selected game.
+     */
     public void inflationDialog(){
         JDialog inflationDialog = new JDialog();
         inflationDialog.setSize(smallDialogBoxSize);
@@ -321,17 +365,21 @@ public class GUI {
         inflationDialog.setLocationRelativeTo(null);
         inflationDialog.setTitle("Inflation Calculator");
         inflationDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
         panel.setBackground(dialogColor);
         inflationDialog.setContentPane(panel);
+
         JLabel dialogTitleLabel = new JLabel("Inflation Calculator");
         dialogTitleLabel.setFont(titleFont);
         panel.add(dialogTitleLabel);
+
         JLabel spacer = new JLabel(" ");
         grid(c, 0, 1);
         panel.add(spacer, c);
         resetC(c);
+
         JLabel gameLabel = new JLabel("");
         int row = table.getSelectedRow();
         String title = (String) table.getValueAt(row, 1);
@@ -344,11 +392,13 @@ public class GUI {
         grid(c, 0, 2);
         panel.add(gameLabel, c);
         resetC(c);
-        JLabel inflateLabel = new JLabel(videoGame.getGameTitle() + "'s Inflated Price: $"+ videoGame.calculateInflationPrice());
+
+        JLabel inflateLabel = new JLabel(videoGame.getGameTitle() + "'s Inflated Price: $" + videoGame.calculateInflationPrice());
         inflateLabel.setFont(textFont);
         grid(c, 0, 3);
         panel.add(inflateLabel, c);
         resetC(c);
+
         JButton exitButton = new JButton("Return");
         exitButton.setPreferredSize(bigButtonSize);
         exitButton.setFont(bigButtonFont);
@@ -358,12 +408,15 @@ public class GUI {
                 inflationDialog.dispose();
             }
         });
+
         grid(c, 0, 4);
         panel.add(exitButton, c);
         inflationDialog.setVisible(true);
     }
 
-    //method to create and handle add form for collection
+    /**
+     * Opens dialog for adding a new video game entry.
+     */
     public void addDialog(){
         JDialog addDialog = new JDialog();
         addDialog.setTitle("Add New Video Game");
@@ -371,10 +424,12 @@ public class GUI {
         addDialog.setLocationRelativeTo(null);
         addDialog.setResizable(false);
         addDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+
         JPanel panel = new JPanel();
         addDialog.setContentPane(panel);
         panel.setLayout(new GridBagLayout());
         panel.setBackground(dialogColor);
+
         JPanel top = new JPanel();
         top.setLayout(new GridBagLayout());
         top.setBackground(bgColor);
@@ -475,6 +530,7 @@ public class GUI {
         bottom.add(errorLabel, c);
 
         resetC(c);
+
         JPanel bottomFirst = new JPanel();
         bottomFirst.setLayout(new GridBagLayout());
         bottomFirst.setBackground(bgColor);
@@ -487,6 +543,7 @@ public class GUI {
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridBagLayout());
         buttonPanel.setBackground(bgColor);
+
         resetC(c);
         c.fill = GridBagConstraints.HORIZONTAL;
         grid(c,0,3);
@@ -508,9 +565,9 @@ public class GUI {
         JButton clearButton = new JButton("Clear");
         clearButton.setPreferredSize(smallButtonSize);
         clearButton.setFont(smallButtonFont);
-        c.anchor = GridBagConstraints.EAST;
         bottomFirst.add(clearButton, c);
         resetC(c);
+
         clearButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -529,11 +586,12 @@ public class GUI {
         submitButton.setPreferredSize(smallButtonSize);
         submitButton.setFont(smallButtonFont);
         bottomSecond.add(submitButton, c);
+
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //check data
                 boolean checked = false;
+
                 if(db.conn == null){
                     errorLabel.setText("Not Connected to Database.");
                 }else if(idField.getText().isBlank()){
@@ -557,6 +615,7 @@ public class GUI {
                 }else{
                     checked = true;
                 }
+
                 if(checked){
                     int gameID = Integer.parseInt(idField.getText());
                     String gameTitle = titleField.getText();
@@ -575,29 +634,33 @@ public class GUI {
                             gamePrice,
                             gameMultiplayer
                     ));
+
                     loadTable();
                     addDialog.dispose();
                 }
-
             }
         });
 
         JButton returnButton = new JButton("Return");
         returnButton.setPreferredSize(smallButtonSize);
         returnButton.setFont(smallButtonFont);
-        c.anchor = GridBagConstraints.WEST;
         bottomThird.add(returnButton, c);
+
         resetC(c);
+
         returnButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 addDialog.dispose();
             }
         });
+
         addDialog.setVisible(true);
     }
 
-    //method to create and handle update form for collection
+    /**
+     * Opens dialog for updating an existing video game entry.
+     */
     public void updateDialog(){
         JDialog updateDialog = new JDialog();
         updateDialog.setTitle("Update Video Game");
@@ -605,6 +668,7 @@ public class GUI {
         updateDialog.setLocationRelativeTo(null);
         updateDialog.setResizable(false);
         updateDialog.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+
         JPanel panel = new JPanel();
         updateDialog.setContentPane(panel);
         panel.setLayout(new GridBagLayout());
@@ -618,6 +682,7 @@ public class GUI {
         int year = (int) table.getValueAt(row, 4);
         double price = Double.parseDouble(String.valueOf(table.getValueAt(row, 5)));
         boolean multiplayer = (boolean) table.getValueAt(row, 6);
+
         VideoGame game = new VideoGame(id, gameTitle, genre, platform, year, price, multiplayer);
 
         JPanel top = new JPanel();
@@ -720,6 +785,7 @@ public class GUI {
         bottom.add(errorLabel, c);
 
         resetC(c);
+
         JPanel bottomFirst = new JPanel();
         bottomFirst.setLayout(new GridBagLayout());
         bottomFirst.setBackground(bgColor);
@@ -732,6 +798,7 @@ public class GUI {
         JPanel buttonPanel = new JPanel();
         buttonPanel.setLayout(new GridBagLayout());
         buttonPanel.setBackground(bgColor);
+
         resetC(c);
         c.fill = GridBagConstraints.HORIZONTAL;
         grid(c,0,3);
@@ -757,14 +824,14 @@ public class GUI {
         yearBox.setSelectedItem(game.getGameReleaseYear());
         priceField.setText(String.valueOf(game.getGameReleasePrice()));
         multiplayerBox.setSelected(game.isMultiplayer());
-        errorLabel.setText(" ");
 
         JButton clearButton = new JButton("Clear");
         clearButton.setPreferredSize(smallButtonSize);
         clearButton.setFont(smallButtonFont);
-        c.anchor = GridBagConstraints.EAST;
         bottomFirst.add(clearButton, c);
+
         resetC(c);
+
         clearButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -775,7 +842,6 @@ public class GUI {
                 yearBox.setSelectedItem(game.getGameReleaseYear());
                 priceField.setText(String.valueOf(game.getGameReleasePrice()));
                 multiplayerBox.setSelected(game.isMultiplayer());
-                errorLabel.setText(" ");
             }
         });
 
@@ -783,12 +849,14 @@ public class GUI {
         submitButton.setPreferredSize(smallButtonSize);
         submitButton.setFont(smallButtonFont);
         bottomSecond.add(submitButton, c);
+
         submitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 db.deleteEntry(id);
-                //check data
+
                 boolean checked = false;
+
                 if(idField.getText().isBlank()){
                     errorLabel.setText("ID field cannot be blank.");
                 }else if(!idField.getText().matches("\\d+")){
@@ -810,6 +878,7 @@ public class GUI {
                 }else{
                     checked = true;
                 }
+
                 if(checked){
                     int gameID = Integer.parseInt(idField.getText());
                     String gameTitle = titleField.getText();
@@ -828,19 +897,20 @@ public class GUI {
                             gamePrice,
                             gameMultiplayer
                     ));
+
                     loadTable();
                     updateDialog.dispose();
                 }
-
             }
         });
 
         JButton returnButton = new JButton("Return");
         returnButton.setPreferredSize(smallButtonSize);
         returnButton.setFont(smallButtonFont);
-        c.anchor = GridBagConstraints.WEST;
         bottomThird.add(returnButton, c);
+
         resetC(c);
+
         returnButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -849,9 +919,7 @@ public class GUI {
                 updateDialog.dispose();
             }
         });
+
         updateDialog.setVisible(true);
     }
 }
-
-
-
